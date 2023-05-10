@@ -7,7 +7,7 @@ import javax.swing.JLabel;
 public abstract class Window extends JFrame {
 	
 	private static final long serialVersionUID = -3206820048194603158L;
-	protected final String assetLoc = "Assets/";
+	protected final static String assetLoc = "Assets/";
 	protected JLabel lblAnimatedBG = new JLabel(new ImageIcon(assetLoc + "background.gif")); 
 
 	public Window() {

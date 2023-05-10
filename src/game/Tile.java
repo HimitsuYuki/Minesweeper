@@ -2,12 +2,18 @@ package game;
 
 public class Tile {
 	private boolean isBomb;
-	private int clue;
+	private boolean isFlagged;
+	private int clue; // 0 - no bomb in scope unless isBomb is true
 	
-	public Tile(boolean isBomb, int clue) {
+	public Tile(boolean isBomb) {
 		this.isBomb = isBomb;
+	}
+	
+	public Tile(int clue) {
 		this.clue = clue;
 	}
+
+	public Tile() {}
 
 	/**
 	 * @return the isBomb
@@ -15,7 +21,7 @@ public class Tile {
 	public boolean isBomb() {
 		return isBomb;
 	}
-
+	
 	/**
 	 * @param isBomb the isBomb to set
 	 */
@@ -29,11 +35,25 @@ public class Tile {
 	public int getClue() {
 		return clue;
 	}
-
+	
 	/**
 	 * @param clue the clue to set
 	 */
 	public void setClue(int clue) {
 		this.clue = clue;
+	}
+
+	/**
+	 * @return the isFlagged
+	 */
+	public boolean isFlagged() {
+		return isFlagged;
+	}
+
+	/**
+	 * @param isFlagged the isFlagged to set
+	 */
+	public void setFlagged(boolean isFlagged) {
+		this.isFlagged = isFlagged;
 	}
 }
