@@ -3,60 +3,66 @@ package game;
 public enum Difficulty {
 	Easy(9, 9, 10),
 	Normal(16, 16, 40),
-	Hard(16, 30, 99),
-	Custom(0, 0, 0);
+	Hard(16, 30, 99);
 	
-	private int length;
-	private int width;
-	private int bombs;
+	private int rows;
+	private int columns;
+	private int mines;
+	private String banner = "banner" + this.toString().toLowerCase() + ".png";
+
+	Difficulty(int row, int columns, int bombs) {
+		this.rows = row;
+		this.columns = columns;
+		this.mines = bombs;
+	}
+
+	/**
+	 * @return the rows
+	 */
+	public int getRows() {
+		return rows;
+	}
+
+	/**
+	 * @param rows the rows to set
+	 */
+	public void setRows(int rows) {
+		this.rows = rows;
+	}
+
+	/**
+	 * @return the columns
+	 */
+	public int getColumns() {
+		return columns;
+	}
+
+	/**
+	 * @param columns the columns to set
+	 */
+	public void setColumns(int columns) {
+		this.columns = columns;
+	}
+
+	/**
+	 * @return the mines
+	 */
+	public int getMines() {
+		return mines;
+	}
+
+	/**
+	 * @param mines the mines to set
+	 */
+	public void setMines(int mines) {
+		this.mines = mines;
+	}
 	
-	Difficulty(int length, int width, int bombs) {
-		this.length = length;
-		this.width = width;
-		this.bombs = bombs;
-	}
-
 	/**
-	 * @return the length
+	 * @return the banner
 	 */
-	public int getLength() {
-		return length;
+	public String getBanner() {
+		return banner;
 	}
-
-	/**
-	 * @param length the length to set
-	 */
-	public void setLength(int length) {
-		this.length = length;
-	}
-
-	/**
-	 * @return the width
-	 */
-	public int getWidth() {
-		return width;
-	}
-
-	/**
-	 * @param width the width to set
-	 */
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	/**
-	 * @return the bombs
-	 */
-	public int getBombs() {
-		return bombs;
-	}
-
-	/**
-	 * @param bombs the bombs to set
-	 */
-	public void setBombs(int bombs) {
-		this.bombs = bombs;
-	}
-	
 	
 }

@@ -2,15 +2,15 @@ package game;
 
 public class GameBoard implements IGame {
 	private Difficulty difficulty;
-	
+	private Tile[][] tiles;
+
 	public GameBoard(Difficulty difficulty) {
 		this.difficulty = difficulty;
 	}
 
 	@Override
 	public void initializeBoard() {
-		// TODO Auto-generated method stub
-		
+		tiles = new Tile[difficulty.getRows()][difficulty.getColumns()];
 	}
 
 	@Override
@@ -24,4 +24,12 @@ public class GameBoard implements IGame {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	/**
+	 * @return the difficulty
+	 */
+	public Difficulty getDifficulty() {
+		return difficulty;
+	}
+
 }
