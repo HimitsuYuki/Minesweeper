@@ -2,6 +2,7 @@ package window;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 
 import javax.swing.ImageIcon;
@@ -9,7 +10,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 
 import game.GameBoard;
-import game.Tile;
+import game.TileIcon;
 
 public class GameWindow extends Window {
 
@@ -21,40 +22,32 @@ public class GameWindow extends Window {
 	protected static int flagCounter;
 	private int winStreak;
 	private boolean isStarted;
-	
-    // All ICONS (Tile, Mine, Flag, Numbers)
-    private ImageIcon minewin = new ImageIcon(assetLoc + "minewin.png");
-    private ImageIcon minelose = new ImageIcon(assetLoc + "minelose.png");
-    protected static ImageIcon flag = new ImageIcon(assetLoc + "flagtile.png");
-    protected static ImageIcon tile = new ImageIcon(assetLoc + "tile.png");
-    private ImageIcon zero = new ImageIcon(assetLoc + "zero.png");
-    private ImageIcon one = new ImageIcon(assetLoc + "one.png");
-    private ImageIcon two = new ImageIcon(assetLoc + "two.png");
-    private ImageIcon three = new ImageIcon(assetLoc + "three.png");
-    private ImageIcon four = new ImageIcon(assetLoc + "four.png");
-    private ImageIcon five = new ImageIcon(assetLoc + "five.png");
-    private ImageIcon six = new ImageIcon(assetLoc + "six.png");
-    private ImageIcon seven = new ImageIcon(assetLoc + "seven.png");
-    private ImageIcon eight = new ImageIcon(assetLoc + "eight.png");
+	private boolean isResults;
     
     // Banner label for difficulty modes, and attaches the banner image to the label
+    private ImageIcon imgWinner = new ImageIcon(assetLoc + "youwon.png");
+    private ImageIcon imgLoser = new ImageIcon(assetLoc + "youlose.png");
+    private static ImageIcon imgFace1 = new ImageIcon(assetLoc + "thinking.png");
+    private static ImageIcon imgFace2 = new ImageIcon(assetLoc + "thinking2.png");
     private JLabel lblBanner;
     protected static JLabel lblFlags = new JLabel();
-    protected static JLabel lblFace1 = new JLabel(new ImageIcon(assetLoc + "thinking.png"));
-    protected static JLabel lblFace2 = new JLabel(new ImageIcon(assetLoc + "thinking2.png"));
+    protected static JLabel lblFace1 = new JLabel(imgFace1);
+    protected static JLabel lblFace2 = new JLabel(imgFace2);
     
-    private JButton btnReset = new JButton();
-    private JButton btnReturn = new JButton();
+    private JButton btnReset = new JButton("Reset");
+    private JButton btnReturn = new JButton("Select Difficulty");
     private JButton[][] btnBoard;
     
-    private JLabel lblWinner = new JLabel(new ImageIcon(assetLoc + "youwon.png"));
-    private JLabel lblLoser = new JLabel(new ImageIcon(assetLoc + "youlose.png"));
     private JLabel lblWinStreak = new JLabel();
     
-	private GameBoard board;
+	protected static GameBoard board; // change to interface soon
+	protected static final String strWinStreak = "Win Streak: ";
+	protected static final String strFlags = "Flags: ";
+	private Point resetLoc;
 	
 	public GameWindow(GameBoard board) {
-		this.board = board;
+		GameWindow.board = board;
+		lblFace1.setIcon(imgFace1);
 		flagCounter = board.getDifficulty().getMines();
 		int width = extraWinWidth + 16 + (tileSize * board.getDifficulty().getColumns());
 		int height = extraWinHeight + (tileSize * board.getDifficulty().getRows());
@@ -76,19 +69,30 @@ public class GameWindow extends Window {
 				btnBoard[i][j] = new JButton();
 				btnBoard[i][j].setLocation(tileSize + (tileSize * j), 185 + (tileSize * i));
 				btnBoard[i][j].setSize(tileSize, tileSize);
-				btnBoard[i][j].setIcon(tile);
-				btnBoard[i][j].addActionListener(e -> viewTile(e));
-				btnBoard[i][j].addMouseListener(new TileMouseAdapter(btnBoard[i][j]));
+				btnBoard[i][j].setIcon(TileIcon.Default.getIcon());
+				btnBoard[i][j].addActionListener(e -> selectTile(e));
+				btnBoard[i][j].addMouseListener(new TileMouseAdapter(btnBoard[i][j], i, j));
 				add(btnBoard[i][j]);
 			}
 		}
 		
 		btnReset.setSize(70, 30);
 		btnReset.setLocation((int)(getSize().getWidth() / 2) - 43, 223 + board.getDifficulty().getRows() * tileSize);
-		btnReset.setText("Reset");
+		resetLoc = btnReset.getLocation();
+		btnReset.addActionListener(e -> resetGame(e));
 		add(btnReset);
+		
+        btnReturn.setSize(125, 30);
+        btnReturn.addActionListener(e -> returnDiffSelect(e));
+        btnReturn.setVisible(false);
+        add(btnReturn); // Adds Return Button
 	}
 	
+	private void returnDiffSelect(ActionEvent e) {
+		dispose();
+		new DifficultySelectWindow();
+	}
+
 	private void addLabels() {
 		lblBanner = new JLabel(new ImageIcon(assetLoc + board.getDifficulty().getBanner()));
         lblBanner.setSize(300, 80);
@@ -99,7 +103,7 @@ public class GameWindow extends Window {
         lblFlags.setFont(new Font ("Arial", Font.BOLD, 15));
         lblFlags.setForeground(Color.WHITE);
         lblFlags.setLocation(tileSize, 162);
-        lblFlags.setText("Flags: " + flagCounter);
+        lblFlags.setText(strFlags + flagCounter);
         add(lblFlags);
         
         lblFace1.setSize(60, 68);
@@ -114,7 +118,7 @@ public class GameWindow extends Window {
         lblWinStreak.setSize(200, 14);
         lblWinStreak.setFont(new Font ("Arial", Font.BOLD, 14));
         lblWinStreak.setForeground(Color.WHITE);
-        lblWinStreak.setText("Win Streak: " + winStreak);
+        lblWinStreak.setText(strWinStreak + winStreak);
         lblWinStreak.setLocation(tileSize, 193 + board.getDifficulty().getRows() * tileSize);
         add(lblWinStreak);
         
@@ -122,34 +126,52 @@ public class GameWindow extends Window {
         add(lblAnimatedBG);
 	}
 	
-	private void viewTile(ActionEvent e) {
-		int[] index = getSelectedButton(e);
+	private void selectTile(ActionEvent e) {
+		if (isResults)
+			return;
+		
+		int[] buttonIndex = getSelectedButton(e);
 		if (!isStarted) {
 			isStarted = true;
-			board.initializeBoard(index[0], index[1]);
+			board.initializeBoard(buttonIndex[0], buttonIndex[1]);
 		}
 		
-		Tile tile = board.getTiles()[index[0]][index[1]];
-		if (tile.isFlagged())
-			return;
-		else if (tile.isBomb()) {
-			gameOver();
+		board.revealTile(buttonIndex[0], buttonIndex[1]);
+		update();
+	}
+	
+	private void update() {
+		updateBoard();
+		isGameEnd();
+	}
+	
+	private void updateBoard() {
+		for (int i = 0; i < btnBoard.length; i++) {
+			for (int j = 0; j < btnBoard[0].length; j++) {
+				btnBoard[i][j].setIcon(board.getTiles()[i][j].getCurIcon().getIcon());
+			}
 		}
-		else if (tile.getClue() == 0) {
-			revealTiles(index[0], index[1]);
+	}
+	
+	private void isGameEnd() {
+		if (!board.isGameOver() && !isResults)
+			return;
+		
+		lblFace1.setVisible(false);
+		if (board.isWin()) {
+			lblFace1.setIcon(imgWinner);
+			winStreak++;
 		}
 		else {
-			btnBoard[index[0]][index[1]].setIcon(one);
+			lblFace1.setIcon(imgLoser);
+			winStreak = 0;
 		}
 		
-	}
-	
-	private void revealTiles(int row, int col) {
-		
-	}
-	
-	private void gameOver() {
-		
+		btnReset.setLocation(btnReset.getLocation().x - 70, btnReset.getLocation().y);
+		btnReturn.setVisible(true);
+		btnReturn.setLocation(btnReset.getLocation().x + 80, btnReset.getLocation().y);
+		lblWinStreak.setText(strWinStreak + winStreak);
+		isResults = true;
 	}
 	
 	private int[] getSelectedButton(ActionEvent e) {
@@ -165,5 +187,18 @@ public class GameWindow extends Window {
 		}
 		
 		return null;
+	}
+	
+	private void resetGame(ActionEvent e) {
+		isStarted = false;
+		isResults = false;
+		lblFace1.setIcon(imgFace1);
+		flagCounter = board.getDifficulty().getMines();
+		lblFlags.setText(GameWindow.strFlags + Integer.toString(GameWindow.flagCounter));
+		btnReset.setLocation(resetLoc);
+		btnReturn.setVisible(false);
+		
+		board = new GameBoard(board.getDifficulty());
+		update();
 	}
 }
