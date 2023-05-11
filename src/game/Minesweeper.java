@@ -44,35 +44,26 @@ public class Minesweeper implements IMinesweeper {
             for(int j = 0; j < difficulty.getColumns(); j++) {
             	if(tiles[i][j].isMine())
             		continue;
-            	/**
-                 * Clues calculated based on a square formation.
-                 * All checks make sure that the square is a bomb, and that it is not checking an out of bounds index.
-                 * If there is a bomb, it increments the clue counter by 1.
-                 * 0 0 0
-                 * 0 b 0
-                 * 0 0 0
-                 */
-            	int clue = 0;
-                // Top left
-                if(i-1 >= 0 && j-1 >= 0 && tiles[i-1][j-1].isMine()) clue++;
-                // Top middle
-                if(i-1 >= 0 && tiles[i-1][j].isMine()) clue++;
-                // Top right
-                if(i-1 >= 0 && j+1 < difficulty.getColumns() && tiles[i-1][j+1].isMine()) clue++;
-                // Left
-                if(j-1 >= 0 && tiles[i][j-1].isMine()) clue++;
-                // Right
-                if(j+1 < difficulty.getColumns() && tiles[i][j+1].isMine()) clue++;
-                // Bottom left
-                if(i+1 < difficulty.getRows() && j-1 >= 0 && tiles[i+1][j-1].isMine()) clue++;
-                // Bottom middle
-                if(i+1 < difficulty.getRows() && tiles[i+1][j].isMine()) clue++;
-                // Bottom right
-                if(i+1 < difficulty.getRows() && j+1 < difficulty.getColumns() && tiles[i+1][j+1].isMine()) clue++;
-                
-			    tiles[i][j].setClue(clue);
+            	
+			    tiles[i][j].setClue(countMines(i, j));
             }
         }
+	}
+	
+	private int countMines(int row, int col) {
+		int clue = 0;
+	    for (int i = row - 1; i <= row + 1; i++) {
+	        for (int j = col - 1; j <= col + 1; j++) {
+	            if (isValidPosition(i, j) && tiles[i][j].isMine()) {
+	                clue++;
+	            }
+	        }
+	    }
+		return clue;
+	}
+	
+	private boolean isValidPosition(int row, int col) {
+		return row >= 0 && row < difficulty.getRows() && col >= 0 && col < difficulty.getColumns();
 	}
 	
 	public void revealTile(int row, int col) {
@@ -91,7 +82,7 @@ public class Minesweeper implements IMinesweeper {
 	}
 	
 	private void recursiveTileReveal(int row, int col) {
-		if(row < 0 || row == tiles.length || col < 0 || col == tiles[0].length)
+		if(!isValidPosition(row, col))
 			return;
 		
 		ITile tile = tiles[row][col];
