@@ -1,5 +1,11 @@
 package game;
 
+/**
+ * The logic for the Minesweeper game
+ * 
+ * @author Yuki
+ *
+ */
 public class Minesweeper implements IMinesweeper {
 	private Difficulty difficulty;
 	private ITile[][] tiles;
@@ -7,6 +13,12 @@ public class Minesweeper implements IMinesweeper {
 	private boolean gameOver;
 	private boolean isWin;
 
+	/**
+	 * Constructor for creating the game. Instantiates the mines and tiles to a
+	 * default state.
+	 * 
+	 * @param difficulty is the difficulty that will be used to set up the game.
+	 */
 	public Minesweeper(Difficulty difficulty) {
 		this.difficulty = difficulty;
 		mines = new Tile[difficulty.getMines()];
@@ -40,60 +52,84 @@ public class Minesweeper implements IMinesweeper {
 
 	@Override
 	public void generateClues() {
-        for(int i = 0; i < difficulty.getRows(); i++){
-            for(int j = 0; j < difficulty.getColumns(); j++) {
-            	if(tiles[i][j].isMine())
-            		continue;
-            	
-			    tiles[i][j].setClue(countMines(i, j));
-            }
-        }
+		for (int i = 0; i < difficulty.getRows(); i++) {
+			for (int j = 0; j < difficulty.getColumns(); j++) {
+				if (tiles[i][j].isMine())
+					continue;
+
+				tiles[i][j].setClue(countMines(i, j));
+			}
+		}
 	}
-	
+
+	/**
+	 * Counts the mines adjacent to a tile.
+	 * 
+	 * @param row is the row of the tile that will have its adjacent mines counted
+	 * @param col is the column of the tile that will have its adjacent mines
+	 *            counted
+	 * 
+	 * @return the amount of mines adjacent to the tile
+	 */
 	private int countMines(int row, int col) {
 		int clue = 0;
-	    for (int i = row - 1; i <= row + 1; i++) {
-	        for (int j = col - 1; j <= col + 1; j++) {
-	            if (isValidPosition(i, j) && tiles[i][j].isMine()) {
-	                clue++;
-	            }
-	        }
-	    }
+		for (int i = row - 1; i <= row + 1; i++) {
+			for (int j = col - 1; j <= col + 1; j++) {
+				if (isValidPosition(i, j) && tiles[i][j].isMine()) {
+					clue++;
+				}
+			}
+		}
 		return clue;
 	}
-	
+
+	/**
+	 * Used to check if the tile position exists on the board
+	 * 
+	 * @param row is the row of the tile
+	 * @param col is the column of the tile
+	 * @return if the tile position exists or not
+	 */
 	private boolean isValidPosition(int row, int col) {
 		return row >= 0 && row < difficulty.getRows() && col >= 0 && col < difficulty.getColumns();
 	}
-	
+
 	public void revealTile(int row, int col) {
 		if (tiles[row][col].isFlagged())
 			return;
-		
+
 		if (tiles[row][col].isMine()) {
 			gameOver();
 			return;
 		}
-		
+
 		recursiveTileReveal(row, col);
-		
-		if(isGameWon())
+
+		if (isGameWon())
 			gameOver();
 	}
-	
+
+	/**
+	 * Recursively checks all the tiles around the tile that was clicked if it has
+	 * no mine adjacent. It should return if; the tile is already revealed, the tile
+	 * is already flagged or if the tile has a mine adjacent.
+	 * 
+	 * @param row is the row of the tile to reveal
+	 * @param col is the column of the tile to reveal
+	 */
 	private void recursiveTileReveal(int row, int col) {
-		if(!isValidPosition(row, col))
+		if (!isValidPosition(row, col))
 			return;
-		
+
 		ITile tile = tiles[row][col];
 		if (tile.isRevealed() || tile.isFlagged())
 			return;
-		
+
 		tile.setRevealed(true);
-		
-		if(tile.getClue() != 0) // we want it to stop when it reaches a clue with a number
+
+		if (tile.getClue() != 0) // we want it to stop when it reaches a clue with a number
 			return;
-		
+
 		// recursive traverse if it is a tile with 0 clues
 		recursiveTileReveal(row - 1, col - 1); // top left
 		recursiveTileReveal(row - 1, col); // top middle
@@ -104,33 +140,37 @@ public class Minesweeper implements IMinesweeper {
 		recursiveTileReveal(row + 1, col); // bottom middle
 		recursiveTileReveal(row + 1, col + 1); // bottom right
 	}
-	
-	public boolean isGameWon() {
-        for(int i = 0; i < difficulty.getRows(); i++){
-            for(int j = 0; j < difficulty.getColumns(); j++) {
-            	if(!tiles[i][j].isRevealed() && !tiles[i][j].isMine())
-            		return false;
-            }
-        }
-        
-        isWin = true;
-        return true;
+
+	/**
+	 * Checks if the user has won the game.
+	 * 
+	 * @return true if the user won the game, false if not
+	 */
+	private boolean isGameWon() {
+		for (int i = 0; i < difficulty.getRows(); i++) {
+			for (int j = 0; j < difficulty.getColumns(); j++) {
+				if (!tiles[i][j].isRevealed() && !tiles[i][j].isMine())
+					return false;
+			}
+		}
+
+		isWin = true;
+		return true;
 	}
-	
+
 	public void gameOver() {
 		gameOver = true;
-		
+
 		if (!isWin) {
-	        for(int i = 0; i < difficulty.getRows(); i++){
-	            for(int j = 0; j < difficulty.getColumns(); j++) {
-	            	if(tiles[i][j].isMine())
-	            		tiles[i][j].setClue(10);
-	            		
-	            	tiles[i][j].setRevealed(true);
-	            }
-	        }
-		}
-		else {
+			for (int i = 0; i < difficulty.getRows(); i++) {
+				for (int j = 0; j < difficulty.getColumns(); j++) {
+					if (tiles[i][j].isMine())
+						tiles[i][j].setClue(10);
+
+					tiles[i][j].setRevealed(true);
+				}
+			}
+		} else {
 			for (int i = 0; i < mines.length; i++) {
 				if (mines[i].isFlagged())
 					continue;
@@ -138,31 +178,19 @@ public class Minesweeper implements IMinesweeper {
 			}
 		}
 	}
-	
-	/**
-	 * @return the difficulty
-	 */
+
 	public Difficulty getDifficulty() {
 		return difficulty;
 	}
 
-	/**
-	 * @return the tiles
-	 */
 	public ITile[][] getTiles() {
 		return tiles;
 	}
 
-	/**
-	 * @return the gameOver
-	 */
 	public boolean isGameOver() {
 		return gameOver;
 	}
 
-	/**
-	 * @return the isWin
-	 */
 	public boolean isWin() {
 		return isWin;
 	}
