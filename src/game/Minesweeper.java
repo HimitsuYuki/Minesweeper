@@ -1,13 +1,13 @@
 package game;
 
-public class GameBoard implements IGame {
+public class Minesweeper implements IMinesweeper {
 	private Difficulty difficulty;
-	private Tile[][] tiles;
-	private Tile[] mines;
+	private ITile[][] tiles;
+	private ITile[] mines;
 	private boolean gameOver;
 	private boolean isWin;
 
-	public GameBoard(Difficulty difficulty) {
+	public Minesweeper(Difficulty difficulty) {
 		this.difficulty = difficulty;
 		mines = new Tile[difficulty.getMines()];
 		tiles = new Tile[difficulty.getRows()][difficulty.getColumns()];
@@ -94,7 +94,7 @@ public class GameBoard implements IGame {
 		if(row < 0 || row == tiles.length || col < 0 || col == tiles[0].length)
 			return;
 		
-		Tile tile = tiles[row][col];
+		ITile tile = tiles[row][col];
 		if (tile.isRevealed() || tile.isFlagged())
 			return;
 		
@@ -158,7 +158,7 @@ public class GameBoard implements IGame {
 	/**
 	 * @return the tiles
 	 */
-	public Tile[][] getTiles() {
+	public ITile[][] getTiles() {
 		return tiles;
 	}
 

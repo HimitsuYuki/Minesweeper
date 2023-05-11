@@ -6,7 +6,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
-import game.Tile;
+import game.ITile;
 
 public class TileMouseAdapter extends MouseAdapter {
 	private JButton button;
@@ -20,7 +20,7 @@ public class TileMouseAdapter extends MouseAdapter {
 	}
 	
 	public void mouseClicked(MouseEvent me) {
-		Tile tile = GameWindow.board.getTiles()[row][col];
+		ITile tile = GameWindow.board.getTiles()[row][col];
 		if (SwingUtilities.isRightMouseButton(me) && !tile.isRevealed()) {
 			if(!tile.isFlagged() && GameWindow.flagCounter != 0) {
 				GameWindow.flagCounter--;
@@ -37,7 +37,7 @@ public class TileMouseAdapter extends MouseAdapter {
 	}
 	
 	public void mousePressed(MouseEvent me) {
-		Tile tile = GameWindow.board.getTiles()[row][col];
+		ITile tile = GameWindow.board.getTiles()[row][col];
 		if (SwingUtilities.isLeftMouseButton(me) && !tile.isRevealed() && !tile.isFlagged()) {
 			GameWindow.lblFace1.setVisible(false);
 			GameWindow.lblFace2.setVisible(true);

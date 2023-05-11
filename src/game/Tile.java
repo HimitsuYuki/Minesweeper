@@ -1,37 +1,27 @@
 package game;
 
-public class Tile {
+public class Tile implements ITile {
 	private boolean isRevealed;
 	private boolean isMine;
 	private boolean isFlagged;
 	private int clue; // 0 - no mine in scope, 9 = bomb (win), 10 = bomb (lose), 11 = flag
 	private TileIcon curIcon;
-	private TileIcon[] icons = {
-		    TileIcon.Zero, TileIcon.One, TileIcon.Two, TileIcon.Three,
-		    TileIcon.Four, TileIcon.Five, TileIcon.Six, TileIcon.Seven,
-		    TileIcon.Eight, TileIcon.MineWin, TileIcon.MineLose
-		};
-	
+	private TileIcon[] icons = { TileIcon.Zero, TileIcon.One, TileIcon.Two, TileIcon.Three, TileIcon.Four,
+			TileIcon.Five, TileIcon.Six, TileIcon.Seven, TileIcon.Eight, TileIcon.MineWin, TileIcon.MineLose };
+
 	public Tile() {
 		curIcon = TileIcon.Default;
 	}
-	
+
 	public Tile(boolean isMine) {
 		super();
 		this.isMine = isMine;
 		clue = 9;
 	}
-	
+
 	public Tile(int clue) {
 		super();
 		this.clue = clue;
-	}
-	
-	public void revealTile() {
-		if (isFlagged || isRevealed)
-			return;
-		curIcon = icons[clue];
-		isRevealed = true;
 	}
 
 	/**
@@ -40,7 +30,7 @@ public class Tile {
 	public boolean isMine() {
 		return isMine;
 	}
-	
+
 	/**
 	 * @param isMine the isMine to set
 	 */
@@ -55,7 +45,7 @@ public class Tile {
 	public int getClue() {
 		return clue;
 	}
-	
+
 	/**
 	 * @param clue the clue to set
 	 */
@@ -76,7 +66,7 @@ public class Tile {
 	public void setFlagged(boolean isFlagged) {
 		if (isRevealed)
 			return;
-		
+
 		this.isFlagged = isFlagged;
 		if (isFlagged)
 			curIcon = TileIcon.Flag;
@@ -103,8 +93,8 @@ public class Tile {
 	 */
 	public void setRevealed(boolean isRevealed) {
 		this.isRevealed = isRevealed;
-		
-		if(isRevealed)
+
+		if (isRevealed)
 			curIcon = icons[clue];
 		else
 			curIcon = TileIcon.Default;

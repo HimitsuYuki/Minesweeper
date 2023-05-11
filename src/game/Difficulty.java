@@ -8,12 +8,13 @@ public enum Difficulty {
 	private int rows;
 	private int columns;
 	private int mines;
-	private String banner = "banner" + this.toString().toLowerCase() + ".png";
+	private String banner;
 
 	Difficulty(int row, int columns, int bombs) {
 		this.rows = row;
 		this.columns = columns;
 		this.mines = bombs;
+		banner = "banner" + this.toString().toLowerCase() + ".png";
 	}
 
 	/**

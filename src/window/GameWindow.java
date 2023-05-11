@@ -9,12 +9,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import game.GameBoard;
+import game.IMinesweeper;
+import game.Minesweeper;
 import game.TileIcon;
 
 public class GameWindow extends Window {
-
-	private static final long serialVersionUID = -3793425913656695007L;
 	private final String winTitle = "Minesweeper";
 	private final int tileSize = 30;
 	private final int extraWinWidth = tileSize * 2;
@@ -40,12 +39,12 @@ public class GameWindow extends Window {
     
     private JLabel lblWinStreak = new JLabel();
     
-	protected static GameBoard board; // change to interface soon
+	protected static IMinesweeper board; // change to interface soon
 	protected static final String strWinStreak = "Win Streak: ";
 	protected static final String strFlags = "Flags: ";
 	private Point resetLoc;
 	
-	public GameWindow(GameBoard board) {
+	public GameWindow(IMinesweeper board) {
 		GameWindow.board = board;
 		lblFace1.setIcon(imgFace1);
 		flagCounter = board.getDifficulty().getMines();
@@ -54,7 +53,7 @@ public class GameWindow extends Window {
 		
     	setWindowSettings(winTitle, width, height);
     	setupGUI();
-    	setVisible(true);
+    	frame.setVisible(true);
 	}
 	
 	private void setupGUI() {
@@ -72,58 +71,58 @@ public class GameWindow extends Window {
 				btnBoard[i][j].setIcon(TileIcon.Default.getIcon());
 				btnBoard[i][j].addActionListener(e -> selectTile(e));
 				btnBoard[i][j].addMouseListener(new TileMouseAdapter(btnBoard[i][j], i, j));
-				add(btnBoard[i][j]);
+				frame.add(btnBoard[i][j]);
 			}
 		}
 		
 		btnReset.setSize(70, 30);
-		btnReset.setLocation((int)(getSize().getWidth() / 2) - 43, 223 + board.getDifficulty().getRows() * tileSize);
+		btnReset.setLocation((int)(frame.getSize().getWidth() / 2) - 43, 223 + board.getDifficulty().getRows() * tileSize);
 		resetLoc = btnReset.getLocation();
 		btnReset.addActionListener(e -> resetGame(e));
-		add(btnReset);
+		frame.add(btnReset);
 		
         btnReturn.setSize(125, 30);
         btnReturn.addActionListener(e -> returnDiffSelect(e));
         btnReturn.setVisible(false);
-        add(btnReturn); // Adds Return Button
+        frame.add(btnReturn); // Adds Return Button
 	}
 	
 	private void returnDiffSelect(ActionEvent e) {
-		dispose();
+		frame.dispose();
 		new DifficultySelectWindow();
 	}
 
 	private void addLabels() {
 		lblBanner = new JLabel(new ImageIcon(assetLoc + board.getDifficulty().getBanner()));
         lblBanner.setSize(300, 80);
-        lblBanner.setLocation((int)(getSize().width / 2) - 161, 20);
-        add(lblBanner);
+        lblBanner.setLocation((int)(frame.getSize().width / 2) - 161, 20);
+        frame.add(lblBanner);
         
         lblFlags.setSize(65, 13);
         lblFlags.setFont(new Font ("Arial", Font.BOLD, 15));
         lblFlags.setForeground(Color.WHITE);
         lblFlags.setLocation(tileSize, 162);
         lblFlags.setText(strFlags + flagCounter);
-        add(lblFlags);
+        frame.add(lblFlags);
         
         lblFace1.setSize(60, 68);
-        lblFace1.setLocation((int)(getSize().width / 2) - 40, 110);
-        add(lblFace1);
+        lblFace1.setLocation((int)(frame.getSize().width / 2) - 40, 110);
+        frame.add(lblFace1);
         
         lblFace2.setSize(60, 68);
-        lblFace2.setLocation((int)(getSize().width / 2) - 40, 110);
+        lblFace2.setLocation((int)(frame.getSize().width / 2) - 40, 110);
         lblFace2.setVisible(false);
-        add(lblFace2);
+        frame.add(lblFace2);
         
         lblWinStreak.setSize(200, 14);
         lblWinStreak.setFont(new Font ("Arial", Font.BOLD, 14));
         lblWinStreak.setForeground(Color.WHITE);
         lblWinStreak.setText(strWinStreak + winStreak);
         lblWinStreak.setLocation(tileSize, 193 + board.getDifficulty().getRows() * tileSize);
-        add(lblWinStreak);
+        frame.add(lblWinStreak);
         
         lblAnimatedBG.setSize(1460, 821);
-        add(lblAnimatedBG);
+        frame.add(lblAnimatedBG);
 	}
 	
 	private void selectTile(ActionEvent e) {
@@ -198,7 +197,7 @@ public class GameWindow extends Window {
 		btnReset.setLocation(resetLoc);
 		btnReturn.setVisible(false);
 		
-		board = new GameBoard(board.getDifficulty());
+		board = new Minesweeper(board.getDifficulty());
 		update();
 	}
 }
